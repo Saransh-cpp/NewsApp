@@ -19,15 +19,15 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        mAdapter = NewsListAdapter(this)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val item = fetchData()
+        fetchData()
+        mAdapter = NewsListAdapter(this)
         recyclerView.adapter = mAdapter
     }
 
     private fun fetchData () {
-        val url = "https://newsapi.org/v2/top-headlines?country=in&apiKey=fd2c74c081f34ffca89e6af930c76bd2"
+        val url = "https://saurav.tech/NewsAPI/top-headlines/category/health/in.json"
         val jsonObjectRequest = JsonObjectRequest(
                 Request.Method.GET, url, null,
                 {
@@ -41,10 +41,12 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
                                 newsJsonObject.getString("url"),
                                 newsJsonObject.getString("urlToImage")
                         )
-                        mAdapter.updateNews(newsArray)
+                        newsArray.add(news)
                     }
+                    mAdapter.updateNews(newsArray)
                 },
                 {
+
                     Toast.makeText(this, "Oops! Something went wrong :(", Toast.LENGTH_LONG).show()
 
                 })
