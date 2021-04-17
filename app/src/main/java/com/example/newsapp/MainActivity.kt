@@ -12,16 +12,18 @@ import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 
 class MainActivity : AppCompatActivity(), NewsItemClicked {
+
+    private lateinit var mAdapter: NewsListAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         var recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-
+        mAdapter = NewsListAdapter(this)
         recyclerView.layoutManager = LinearLayoutManager(this)
         val item = fetchData()
-        var adapter: NewsListAdapter = NewsListAdapter(item, this)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = mAdapter
     }
 
     private fun fetchData () {
@@ -29,7 +31,18 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
         val jsonObjectRequest = JsonObjectRequest(
                 Request.Method.GET, url, null,
                 {
-
+                    val newsJsonArray = it.getJSONArray("articles")
+                    val newsArray = ArrayList<News>()
+                    for (i in 0 until newsJsonArray.length()) {
+                        val newsJsonObject = newsJsonArray.getJSONObject(i)
+                        val news = News(
+                                newsJsonObject.getString("title"),
+                                newsJsonObject.getString("author"),
+                                newsJsonObject.getString("url"),
+                                newsJsonObject.getString("urlToImage")
+                        )
+                        mAdapter.updateNews(newsArray)
+                    }
                 },
                 {
                     Toast.makeText(this, "Oops! Something went wrong :(", Toast.LENGTH_LONG).show()
@@ -38,7 +51,7 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
         MySingleton.MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
     }
 
-    override fun onItemClicked(item: String) {
-        Toast.makeText(this, "Clicked $item", Toast.LENGTH_LONG).show()
+    override fun onItemClicked(item: News) {
+//        Toast.makeText(this, "Clicked $item", Toast.LENGTH_LONG).show()
     }
 }
